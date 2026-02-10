@@ -29,19 +29,10 @@
       z-index: 2;
     }
 
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none; }
 
-    h2 {
-      font-size: 24px;
-      margin-bottom: 12px;
-    }
-
-    p {
-      font-size: 16px;
-      margin: 8px 0;
-    }
+    h2 { font-size: 24px; margin-bottom: 12px; }
+    p { font-size: 16px; }
 
     .intro-img {
       width: 100%;
@@ -90,8 +81,8 @@
     }
 
     @keyframes pop {
-      0% { transform: scale(0.6); }
-      100% { transform: scale(1); }
+      from { transform: scale(0.6); }
+      to { transform: scale(1); }
     }
 
     /* Corazones */
@@ -100,15 +91,11 @@
       bottom: -20px;
       font-size: 22px;
       animation: floatUp linear forwards;
-      opacity: 0.85;
       z-index: 1;
     }
 
     @keyframes floatUp {
-      to {
-        transform: translateY(-110vh);
-        opacity: 0;
-      }
+      to { transform: translateY(-110vh); opacity: 0; }
     }
 
     /* Confeti */
@@ -122,13 +109,10 @@
     }
 
     @keyframes fall {
-      to {
-        transform: translateY(110vh) rotate(360deg);
-        opacity: 0;
-      }
+      to { transform: translateY(110vh) rotate(360deg); opacity: 0; }
     }
 
-    /* Botón música */
+    /* Música */
     .music-btn {
       position: fixed;
       top: 18px;
@@ -150,14 +134,6 @@
       font-size: 22px;
       color: white;
     }
-
-    /* Ajuste fino solo para pantallas chicas */
-    @media (max-width: 480px) {
-      h2 { font-size: 26px; }
-      p { font-size: 17px; }
-      button { font-size: 18px; }
-      .buttons { height: 130px; }
-    }
   </style>
 </head>
 
@@ -166,7 +142,7 @@
   <audio id="music" src="music.mp3" loop></audio>
 
   <button class="music-btn" id="musicBtn">
-    <span id="musicIcon">⏸️</span>
+    <span id="musicIcon">🔊</span>
   </button>
 
   <div class="card" id="card">
@@ -193,38 +169,25 @@
   </div>
 
   <script>
-    const startBtn = document.getElementById("start");
-    const intro = document.getElementById("intro");
-    const game = document.getElementById("game");
-
-    const noBtn = document.getElementById("no");
-    const yesBtn = document.getElementById("yes");
-    const message = document.getElementById("message");
-    const card = document.getElementById("card");
-
     const music = document.getElementById("music");
     const musicBtn = document.getElementById("musicBtn");
     const musicIcon = document.getElementById("musicIcon");
 
-    const messages = [
-      "¿Estás segura? 👀",
-      "Piénsalo bien 😌",
-      "No te hagas la difícil 🙈",
-      "Elige con el corazón 💓",
-      "Vamos… tú quieres 😏"
-    ];
+    let isPlaying = false;
 
-    let count = 0;
-    let isPlaying = true;
+    // 👉 Se reproduce en el PRIMER toque de pantalla (regla móvil)
+    document.addEventListener("click", iniciarMusica, { once: true });
+    document.addEventListener("touchstart", iniciarMusica, { once: true });
 
-    window.addEventListener("load", () => {
-      music.play().catch(() => {
-        isPlaying = false;
-        musicIcon.textContent = "▶️";
+    function iniciarMusica() {
+      music.play().then(() => {
+        isPlaying = true;
+        musicIcon.textContent = "⏸️";
       });
-    });
+    }
 
-    musicBtn.addEventListener("click", () => {
+    musicBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
       if (isPlaying) {
         music.pause();
         musicIcon.textContent = "▶️";
@@ -235,16 +198,32 @@
       isPlaying = !isPlaying;
     });
 
+    const startBtn = document.getElementById("start");
+    const intro = document.getElementById("intro");
+    const game = document.getElementById("game");
+    const noBtn = document.getElementById("no");
+    const yesBtn = document.getElementById("yes");
+    const message = document.getElementById("message");
+    const card = document.getElementById("card");
+
+    const messages = [
+      "¿Estás segura? 👀",
+      "Piénsalo bien 😌",
+      "No te hagas la difícil 🙈",
+      "Elige con el corazón 💓",
+      "Vamos… tú quieres 😏"
+    ];
+
+    let count = 0;
+
     startBtn.addEventListener("click", () => {
       intro.classList.add("hidden");
       game.classList.remove("hidden");
     });
 
     function moverNo() {
-      const x = Math.random() * 180;
-      const y = Math.random() * 80;
-      noBtn.style.left = x + "px";
-      noBtn.style.top = y + "px";
+      noBtn.style.left = Math.random() * 180 + "px";
+      noBtn.style.top = Math.random() * 80 + "px";
       yesBtn.style.transform = `scale(${1 + count * 0.15})`;
       message.textContent = messages[count % messages.length];
       count++;
@@ -264,27 +243,27 @@
     });
 
     function lanzarCorazones() {
-      const interval = setInterval(() => {
-        const heart = document.createElement("div");
-        heart.className = "heart";
-        heart.textContent = "💖";
-        heart.style.left = Math.random() * 100 + "vw";
-        heart.style.animationDuration = (3 + Math.random() * 3) + "s";
-        document.body.appendChild(heart);
-        setTimeout(() => heart.remove(), 6000);
+      const i = setInterval(() => {
+        const h = document.createElement("div");
+        h.className = "heart";
+        h.textContent = "💖";
+        h.style.left = Math.random() * 100 + "vw";
+        h.style.animationDuration = 3 + Math.random() * 3 + "s";
+        document.body.appendChild(h);
+        setTimeout(() => h.remove(), 6000);
       }, 300);
-      setTimeout(() => clearInterval(interval), 5000);
+      setTimeout(() => clearInterval(i), 5000);
     }
 
     function lanzarConfeti() {
       for (let i = 0; i < 80; i++) {
-        const confetti = document.createElement("div");
-        confetti.className = "confetti";
-        confetti.style.left = Math.random() * 100 + "vw";
-        confetti.style.backgroundColor = `hsl(${Math.random() * 360},100%,60%)`;
-        confetti.style.animationDuration = (2 + Math.random() * 3) + "s";
-        document.body.appendChild(confetti);
-        setTimeout(() => confetti.remove(), 5000);
+        const c = document.createElement("div");
+        c.className = "confetti";
+        c.style.left = Math.random() * 100 + "vw";
+        c.style.backgroundColor = `hsl(${Math.random()*360},100%,60%)`;
+        c.style.animationDuration = 2 + Math.random() * 3 + "s";
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 5000);
       }
     }
   </script>
